@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link href='https://fonts.googleapis.com/css?family=Courgette' rel='stylesheet'>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tic Tac Toe</title>
+</head>
+<style>
+    @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@0,500;1,400&display=swap');
+
+* {   
+  font-family:"courgette";
+}
+
+.container {
+    background-color: black;
+    width: 600px;
+    padding-top: 5px;
+    padding-bottom: 5px;
+    margin: 25px auto;
+    border-radius: 20px 20px;
+    box-shadow: 10px 10px 30px black;
+
+}
+
+body{
+        color: yellow;
+        background-color: rgb(153, 255, 0);
+        text-align: center;
+        font-family: Courgette;
+        background: linear-gradient(-45deg,#23a6d5, rgb(1, 221, 250), greenyellow, #23a6d5, #23d5ab);
+        background-size: 400% 400%;
+        animation: gradient 5s ease infinite;
+}
+
+@keyframes gradient {
+	0% {
+		background-position: 0% 50%;
+	}
+	50% {
+		background-position: 100% 50%;
+	}
+	100% {
+		background-position: 0% 50%;
+	}
+}
+
+
+button {
+    border: none;
+    outline: none;
+    padding: 16px 32px;
+    margin: 6px;
+    border-radius: 8px;
+    background: greenyellow;
+    color: #0f1719;
+    font-weight: bolder;
+    font-size: 18px;
+    letter-spacing: 1px;
+    cursor: pointer;
+    text-align: center;
+    border-bottom: 4px solid black;
+
+  }
+
+  button:hover,button:active {
+    border: none;
+    outline: none;
+    padding: 16px 32px;
+    margin: 8px;
+    border-radius: 8px;
+    background: greenyellow;
+    color: #0f1719;
+    font-weight: bolder;
+    font-size: 18px;
+    letter-spacing: 1px;
+    cursor: pointer;
+    text-align: center;
+    border-bottom: 4px solid greenyellow;
+    background: black;
+    box-shadow: 0px 0px 50px rgb(195, 206, 49);
+    color: greenyellow;
+  }
+
+.header {
+    text-align: center;
+    font-weight: bold;
+}
+
+.board {
+    width: 306px;
+    height: 306px;
+    margin: 20px auto;
+    display: flex;
+    flex-wrap: wrap;
+    border-radius: 20px 20px;
+}
+
+.square{
+    width: 98px;
+    height: 98px;
+    background-color: white;
+    border-radius: 10px;
+    margin: 2px;
+}
+
+.square:hover {
+    cursor: pointer;
+    background-color: #6f84a0;
+}
+
+.player-one {
+    background-color: rgb(255, 35, 255);
+}
+
+.player-two {
+    background-color: rgb(0, 255, 242);
+}
+
+.player-one:hover {
+    cursor: initial;
+    background-color: rgb(255, 35, 255);
+}
+
+.player-two:hover {
+    cursor: initial;
+    background-color: rgb(0, 255, 242);
+}
+
+.message {
+    text-align: center;
+}
+
+.reset-button {
+    text-align: center;
+    margin-top: 10px;
+}
+</style>
+<body>
+    
+    <h1 style="color: black;text-shadow:3px 3px 3px white;">Boring! Come, Let's have some fun!!!</h1>
+    <div class="container">
+        <div class="header">
+          <h2>Tic-Tac-Toe</h2>
+          
+          <div class="players">
+            <button type="button" id="one-player">One Player</button>
+            <button type="button" id="two-players">Two Players</button>
+          </div>
+        </div>
+        <div class="board"></div>
+        <div class="message">Your turn</div>
+        <div class="game-over"></div>
+        <div class="reset-button">
+          <button type="reset" id="reset">Reset</button>
+        </div>
+      </div>
+</body>
+<script>
+   
+const board = document.querySelector('.board')
+const onePlayerBtn = document.querySelector('#one-player')
+const twoPlayerBtn = document.querySelector('#two-players')
+const message = document.querySelector('.message')
+const resetBtn = document.querySelector('#reset')
+let numberOfPlayers = 1
+let turns = 0
+let gameOver = false
+
+// arrays of winning combinations
+const winningCombinations = [
+    [0, 1, 2],
+    [3, 4, 5],
+    [6, 7, 8],
+    [0, 3, 6],
+    [1, 4, 7],
+    [2, 5, 8],
+    [0, 4, 8],
+    [2, 4, 6]
+]
+
+// create the board
+for (let i = 0; i < 9; i++) {
+    const square = document.createElement('div')
+    square.classList.add('square')   //add,remove,toggle(can add new classes)
+    square.dataset.squareId = i      //set and get data in html
+    board.appendChild(square)
+}
+const squares = Array.from(document.querySelectorAll('.square'))
+
+// one player button
+onePlayerBtn.addEventListener("click", () => {
+    reset()
+    numberOfPlayers = 1
+    message.innerText = "Your turn"
+    
+})
+
+// two player button
+twoPlayerBtn.addEventListener("click", () => {
+    reset()
+    numberOfPlayers = 2
+    message.innerText = "Player One's turn"
+})
+
+// create event listener for squares
+document.addEventListener("click", e => {
+    if (gameOver === true) return
+    if (!e.target.matches('.square')) return
+    if (e.target.matches('.player-one')) return
+    if (e.target.matches('.player-two')) return
+    if(numberOfPlayers === 1) onePlayer(e)
+    if(numberOfPlayers === 2) twoPlayers(e)
+})
+
+// event listener for reset button
+resetBtn.addEventListener("click",() => reset())
+
+// if one player, play with computer
+onePlayer = (e) => {
+    e.target.classList.add('player-one')
+    checkForWinner()
+    if(!gameOver) {
+        const emptySquares = squares.filter (square => {
+            return !square.classList.contains('player-one') && !square.classList.contains('player-two')
+        })
+        console.log(emptySquares)
+        if (emptySquares.length !== 0) {
+            message.innerText = "Computer's turn"
+            computer(emptySquares)
+            checkForWinner() 
+        } else {
+           message.innerText = "Match Draw! Game Over!!!"
+            gameOver = true
+        }
+    }
+}
+
+// computer player
+computer = (emptySquares) => {
+    setTimeout(() => {
+        let random = Math.round(Math.random() * (emptySquares.length-1))
+        if (random === -1) random = random + 1
+        emptySquares[random].classList.add('player-two')
+        checkForWinner() 
+        if(gameOver){
+            message.innerText = "Computer Wins!"
+        }
+        else{
+            message.innerText = "Your turn"
+        }
+    }, 500)
+    
+}
+
+// if two players, take it in turns to play
+twoPlayers = (e) => {
+    if (turns % 2 === 0) {
+        e.target.classList.add('player-one')
+        message.innerText = "Player Two's turn"
+        checkForWinner()
+        } else {
+            e.target.classList.add('player-two')
+            message.innerText = "Player One's turn"
+            checkForWinner()
+        } turns ++
+        if (turns === squares.length  && gameOver === false) {
+            message.innerText = "Match Draw! Game Over!!!"
+            gameOver = true
+        }
+}
+
+// check for a winning combination
+checkForWinner = () => {
+    winningCombinations.forEach(combination => {
+        if (combination.every(index => squares[index].classList.contains('player-one'))) {
+            message.innerText = "Player One wins!"
+            gameOver = true
+        } else if (combination.every(index => squares[index].classList.contains('player-two'))) {
+            message.innerText = "Player Two wins!"
+            gameOver = true
+        } 
+    })
+    return gameOver;
+}
+
+// reset the game
+reset = () => {
+    squares.forEach(square => {
+        square.classList.remove('player-one')
+        square.classList.remove('player-two')
+        message.innerText = "Your turn"
+        if (numberOfPlayers === 2) message.innerText = "Player One's turn"
+        turns = 0
+        gameOver = false
+    })
+}
+
+</script>
+</html>
